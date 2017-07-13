@@ -8,7 +8,7 @@ npm-debug.log
 .vscode
 coverage
 
-/etc/mosquitto/*
+/etc/mosquitto/mosquitto.db
 /firmwares/*
 config.ini
 devices.json
