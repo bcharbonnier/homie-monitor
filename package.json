@@ -1,0 +1,35 @@
+{
+  "name": "homie-sentinel",
+  "version": "1.0.0",
+  "description": "Homie Sentinel UI Server",
+  "private": true,
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bulma": "0.4.3",
+    "classnames": "^2.2.5",
+    "flux": "^3.1.2",
+    "immutable": "^3.8.1",
+    "keymirror": "^0.1.1",
+    "moment": "^2.18.1",
+    "mqtt": "^2.9.1",
+    "prop-types": "15.5.10",
+    "react": "15.6.1",
+    "react-dom": "15.6.1",
+    "react-router": "4.1.1",
+    "react-router-dom": "^4.1.1"
+  },
+  "devDependencies": {
+    "react-scripts": "1.0.10"
+  },
+  "proxy": {
+    "api/*": {
+      "target": "http://sentinel:8080"
+    }
+  }
+}

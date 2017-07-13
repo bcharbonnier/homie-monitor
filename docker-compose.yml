@@ -1,0 +1,45 @@
+version: '2'
+services:
+  mosquitto:
+    image: toke/mosquitto
+    container_name: homie-mqtt
+    restart: always
+    expose:
+      - 1883
+    ports:
+      - 9001:9001 #eventually useful for websocket connections
+    volumes:
+      - ./etc/mosquitto:/mqtt/data
+  
+  sentinel:
+    image: python:2.7
+    container_name: homie-sentinel
+    links:
+      - mosquitto:mqtt
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/usr/local/var/sentinel
+    working_dir: /usr/local/var/sentinel
+    entrypoint: sh scripts/start-sentinel.sh
+    command: python src-sentinel/sentinel.py
+    restart: always
+
+  sentinel-ui:
+    image: node
+    container_name: homie-sentinel-ui
+    environment:
+      - NODE_ENV=development
+    ports:
+      - 3000:3000
+      - 35729:35729 #webpack-dev-server
+    links:
+      - sentinel:sentinel
+      - mosquitto:mqtt
+    volumes:
+      - .:/usr/local/var/sentinel
+      - /usr/local/var/sentinel/node_modules
+    working_dir: /usr/local/var/sentinel
+    entrypoint: sh scripts/start-sentinel-ui.sh
+    command: npm run start
+    restart: always
