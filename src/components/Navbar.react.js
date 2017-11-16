@@ -4,17 +4,23 @@ import classnames from "classnames";
 
 import ConnectionButton from "./ConnectionButton.react";
 
-const NavLink = (props) => {
-  return <Link activeClassName="is-active" className="navbar-item" {...props}>{props.children}</Link>;
-}
+const NavLink = props => {
+  return (
+    <Link activeClassName="is-active" className="navbar-item" {...props}>
+      {props.children}
+    </Link>
+  );
+};
 
 export default class Navbar extends React.Component {
   state = {
     hamburgerActive: false
-  }
+  };
 
   toggleHamburger() {
-    this.setState(({ hamburgerActive }) => ({ hamburgerActive: !hamburgerActive }));
+    this.setState(({ hamburgerActive }) => ({
+      hamburgerActive: !hamburgerActive
+    }));
   }
 
   mightHideNavbar() {
@@ -26,26 +32,31 @@ export default class Navbar extends React.Component {
   render() {
     const { hamburgerActive } = this.state;
     return (
-      <nav className="navbar has-shadow">
+      <nav className="navbar">
         <div className="navbar-brand">
           <Link className="navbar-item" to="/">
             <strong>Homie</strong>Sentinel
           </Link>
-          <div className={classnames("navbar-burger burger", {
-            "is-active": hamburgerActive
-          })} onClick={() => this.toggleHamburger()}>
-            <span></span>
-            <span></span>
-            <span></span>
+          <div
+            className={classnames("navbar-burger burger", {
+              "is-active": hamburgerActive
+            })}
+            onClick={() => this.toggleHamburger()}
+          >
+            <span />
+            <span />
+            <span />
           </div>
         </div>
 
-        <div className={classnames("navbar-menu", {
+        <div
+          className={classnames("navbar-menu", {
             "is-active": hamburgerActive
-          })} onClick={() => this.mightHideNavbar()}>
+          })}
+          onClick={() => this.mightHideNavbar()}
+        >
           <div className="navbar-start">
             <NavLink to="/devices">Devices</NavLink>
-            <NavLink to="/firmwares">Firmwares</NavLink>
             <div className="navbar-item has-dropdown is-hoverable">
               <a className="navbar-link">Explorers</a>
               <div className="navbar-dropdown is-boxed">
@@ -53,6 +64,7 @@ export default class Navbar extends React.Component {
                 <NavLink to="/explorer/actions">Node Actions</NavLink>
               </div>
             </div>
+            <NavLink to="/firmwares">Firmwares</NavLink>
             <NavLink to="/console">Console Logs</NavLink>
           </div>
 
@@ -66,4 +78,3 @@ export default class Navbar extends React.Component {
     );
   }
 }
-

@@ -46,6 +46,10 @@ body {
     content: "] ";
 }
 
+.log-line.is-error .topic {
+    color: red;
+}
+
 td.device-online {
     width: 90px;
     text-align: center;
@@ -55,6 +59,19 @@ td.signal {
     vertical-align: inherit;
 }
 
-.action-button .navbar-item span.icon {
+.action-button .dropdown-item span.icon {
     margin-right: 0.35rem;
+}
+
+th:last-child, td:last-child {
+    width: 100px;
+    text-align: right;
+}
+
+td:last-child > div.field.has-addons {
+    justify-content: flex-end;
+}
+
+.modal .modal-card-foot {
+    justify-content: flex-end;
 }

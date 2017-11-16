@@ -24,18 +24,47 @@ export function getList() {
         });
 }
 
+export function deleteDevice(deviceId) {
+    return fetch(`/api/devices/${deviceId}`, {
+        method: "DELETE"
+    }).then(response => {
+        if (response.status !== 200) {
+            console.error(response.statusText);
+            dispatch({
+                type: ActionTypes.DEVICE_DELETE_FAILURE,
+                deviceId
+            });
+            return {};
+        }
+        return response.json();
+    }).then(({devices, device }) => {
+        dispatch({
+            type: ActionTypes.DEVICE_DELETE_SUCCESS,
+            devices,
+            device // TODO: display de notification of successful deletion
+        });
+    })
+}
+
 
 export function receiveMessage(deviceId, subTopic, message) {
     // clever hack to use regular expression to detect patterns
-    const DEVICE_PROPERTY = /^\$(\w+)$/;
+    const DEVICE_PROPERTY = /^\$(\w+)(?:\/?(\w+))?$/;
     const DEVICE_NODE_TYPE = /^(\w+)\/\$type$/;
     const DEVICE_NODE_PROPERTIES = /^(\w+)\/\$properties$/;
     const NODE_PROPERTIES = /^(\w+)(?:\[(\d-\d)\])?(?::(settable))?$/;
     const DEVICE_NODE_PROPERTY_VALUE = /^(\w+)\/(.+)$/;
 
+    const value = message.toString();
+    if (value.length === 0) {
+        return;
+    }
+
     subTopic
-        .replace(DEVICE_PROPERTY, (match, property) => {
-            receiveProperty(deviceId, property, message.toString())
+        .replace(DEVICE_PROPERTY, (match, property, subProperty) => {
+            if (!subProperty) {
+                receiveProperty(deviceId, property, message.toString())
+            }
             return match;
         })
         .replace(DEVICE_NODE_TYPE, (match, node) => {
@@ -43,8 +72,7 @@ export function receiveMessage(deviceId, subTopic, message) {
             return match;
         })
         .replace(DEVICE_NODE_PROPERTIES, (match, node) => {
-            const properties = message.toString()
-                .split(",")
+            const properties = value.split(",")
                 .map(prop => {
                     const [match, name, range, settable, ...rest] = prop.match(NODE_PROPERTIES); // eslint-disable-line no-unused-vars
                     return {
@@ -96,6 +124,5 @@ function receiveNodeDefinition(deviceId, nodeId, properties) {
 function receiveNodePropertyValue(deviceId, nodeId, value) {
     dispatch({
         type: ActionTypes.DEVICE_NODE_PROPERTY_VALUE_UPDATE,
-
     })
 }

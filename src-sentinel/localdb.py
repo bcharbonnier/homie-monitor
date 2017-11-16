@@ -20,7 +20,7 @@ class LocalDB(dict):
         dict.__init__(self, *args, **kwds)
 
     def sync(self):
-        """"Write dict to disk"""
+        """Write dict to disk"""
         if self.flag == 'r':
             return
         filename = self.filename

@@ -1,11 +1,11 @@
 import React from "react";
 
-const DeviceDetails = (props) => {
+const DeviceReset = (props) => {
     return (
         <article className="message is-danger">
             <div className="message-header">
                 <p>Reset confirmation needed</p>
-                <button 
+                <button
                     onClick={() => props.history.goBack()}
                     className="delete"></button>
             </div>
@@ -25,4 +25,4 @@ const DeviceDetails = (props) => {
     )
 }
 
-export default DeviceDetails;
+export default DeviceReset;

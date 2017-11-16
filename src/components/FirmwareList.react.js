@@ -41,29 +41,29 @@ export default class FirmwareList extends React.PureComponent {
                     <td>
                         <ActionButton
                             label="Details">
-                            <a className="navbar-item">
+                            <a className="dropdown-item">
                                 <span className="icon is-small">
                                     <i className="fa fa-cloud-upload" />
                                 </span>
                                 <span>Deploy</span>
                             </a>
-                            <a className="navbar-item">
+                            <a className="dropdown-item" href="" download>
                                 <span className="icon is-small">
                                     <i className="fa fa-download" />
                                 </span>
                                 <span>Download</span>
                             </a>
-                            <span className="navbar-divider" />
+                            <span className="dropdown-divider" />
                             <a
                                 onClick={() => this.deleteFirmware(firmware.firmware)}
-                                className="navbar-item">
+                                className="dropdown-item">
                                 <span className="icon is-small">
                                     <i className="fa fa-trash" />
                                 </span>
                                 <span>Delete</span>
                             </a>
-                            <span className="navbar-divider" />
-                            <a className="navbar-item">
+                            <span className="dropdown-divider" />
+                            <a className="dropdown-item">
                                 <span className="icon is-small">
                                     <i className="fa fa-info-circle" />
                                 </span>

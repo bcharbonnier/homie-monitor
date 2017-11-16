@@ -31,9 +31,14 @@ class Console extends React.Component {
     render() {
         const { fullscreen } = this.state;
         const messages = this.props.messages.map(payload => {
-            const { id, message, topic, date } = payload;
+            const { id, message, topic, date, error } = payload;
             return (
-                <div key={id} className="log-line">
+                <div
+                    key={id}
+                    className={classnames("log-line", {
+                       "is-error": !!error
+                    })}
+                >
                     <time className="timestamp" dateTime={date}>{timestamp(date)}</time>
                     <strong className="topic">{topic}</strong>
                     <span className="log-message">{message}</span>
@@ -64,7 +69,7 @@ class Console extends React.Component {
                         </a>
                     </div>
                 </div>
-                
+
                 {!fullscreen && <hr />}
                 <div className="box logs" ref={logs => this.logs = logs}>
                     {messages}

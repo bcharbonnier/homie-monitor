@@ -44,27 +44,19 @@ export default class ActionButton extends React.PureComponent {
     render() {
         const { label, children, onClick } = this.props;
         const { open } = this.state;
-        const styles = {
-            transform: "translateX(-100%)",
-            "marginLeft": "28px",
-            "marginTop": "1px"
-        };
-        if (open) {
-            styles["display"] = "block";
-        }
         return (
-            <div className="field has-addons action-button">
-                <p className="control">
-                    <a 
+            <div className={classnames("field has-addons action-button dropdown is-right", {
+                "is-active": open
+            })}>
+                <div className="control">
+                    <a
                         className="button is-info is-small"
                         onClick={(e) => onClick(e)}
                     >{label}</a>
-                </p>
-                <p className="control">
-                    <a 
-                        className={classnames("button is-info is-small", {
-                            "is-active": open
-                        })}
+                </div>
+                <div className="control dropdown-trigger">
+                    <a
+                        className="button is-info is-small"
                         ref={toggler => this.toggler = toggler}
                         onClick={(event) => this.toggleState(event)}
                     >
@@ -72,15 +64,16 @@ export default class ActionButton extends React.PureComponent {
                             <i className="fa fa-chevron-down" />
                         </span>
                     </a>
-                    <span
+                    <div
                         ref={dropdown => this.dropdown = dropdown}
-                        className="navbar-dropdown"
-                        style={styles}
+                        className="dropdown-menu"
                         onClick={() => this.toggleState()}
                     >
-                        {children}
-                    </span>
-                </p>
+                        <div className="dropdown-content">
+                            {children}
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }

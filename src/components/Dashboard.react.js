@@ -5,7 +5,6 @@ export default class Dashboard extends React.Component {
         return (
             <div className="container">
                 <h1 className="title">Dashboard</h1>
-                <hr />
             </div>
         );
     }

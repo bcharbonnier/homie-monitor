@@ -10,17 +10,24 @@ import FirmwareStore from "../stores/FirmwareStore";
 const NoFirmware = () => (
     <section className="section has-text-centered">
         <p>
-            <button className="button is-large">
-                <span className="icon is-medium">
-                    <i className="fa fa-upload" />
-                </span>
-                <span>Upload</span>
-            </button>
+        <div class="file is-boxed">
+        <label class="file-label">
+          <input class="file-input" type="file" name="resume" />
+          <span class="file-cta">
+            <span class="file-icon">
+              <i class="fa fa-upload"></i>
+            </span>
+            <span class="file-label">
+              Choose a file to upload…
+            </span>
+          </span>
+        </label>
+      </div>
         </p>
     </section>
 );
 
-class FirmwaresContainer extends React.PureComponent {
+class FirmwaresContainer extends React.Component {
     static getStores() {
         return [ FirmwareStore ];
     }
@@ -45,12 +52,19 @@ class FirmwaresContainer extends React.PureComponent {
                     </div>
                     <div className="level-right">
                         <div className="level-item">
-                            {firmwares.size > 0 && <button className="button is-small">
-                                <span className="icon is-small">
-                                    <i className="fa fa-upload" />
+                            {firmwares.size > 0 && <div class="file is-small">
+                            <label class="file-label">
+                              <input class="file-input" type="file" name="resume" />
+                              <span class="file-cta">
+                                <span class="file-icon">
+                                  <i class="fa fa-upload"></i>
                                 </span>
-                                <span>Upload</span>
-                            </button>}
+                                <span class="file-label">
+                                  Choose a file to upload…
+                                </span>
+                              </span>
+                            </label>
+                          </div>}
                         </div>
                         <div className="level-item">
                             <p className="control has-icons-right">
@@ -62,7 +76,7 @@ class FirmwaresContainer extends React.PureComponent {
                         </div>
                     </div>
                 </div>
-                <table className="table is-striped">
+                <table className="table is-striped is-fullwidth">
                     <thead>
                         <tr>
                             <th></th>

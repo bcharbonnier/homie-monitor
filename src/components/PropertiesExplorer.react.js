@@ -20,7 +20,7 @@ class PropertiesExplorerContainer extends React.Component {
             <div className="container">
                 <h1 className="title">Node Properties Explorer</h1>
 
-                <table className="table is-striped">
+                <table className="table is-striped is-fullwidth">
                     <thead>
                         <tr>
                             <th>Device</th>

@@ -11,23 +11,23 @@ import * as DeviceAction from "../actions/DeviceAction";
 
 const CLIENT_ID = `homie-sentinel-ui-${Math.random().toString(16).substr(2, 8)}`;
 
-// const client = mqtt.connect("ws://192.168.0.66:9001", {
-//     clientId: CLIENT_ID
-// });
-const client = mqtt.connect("ws://localhost:9001", {
+const client = mqtt.connect("ws://192.168.0.17:9001", {
     clientId: CLIENT_ID
 });
+// const client = mqtt.connect("ws://localhost:9001", {
+//     clientId: CLIENT_ID
+// });
 
 client.on("connect", () => {
     dispatch({
         type: ActionTypes.CONNECTION_OPEN
-    })
+    });
 });
 
 client.on("close", () => {
     dispatch({
         type: ActionTypes.CONNECTION_LOST
-    })
+    });
 });
 
 client.on("reconnect", () => {
@@ -37,15 +37,18 @@ client.on("reconnect", () => {
 });
 
 client.on("message", (topic, message) => {
-    MessageAction.receiveMessage(topic, message);
     const [PREFIX, deviceId, ...rest] = topic.split("/"); // eslint-disable-line no-unused-vars
+    MessageAction.receiveMessage(topic, message, deviceId);
     if (!deviceId.startsWith("$")) {
         DeviceAction.receiveMessage(deviceId, rest.join("/"), message);
     }
 })
 
 function handleConnectionOpen(state) {
-    client.subscribe("homie/#");
+    setTimeout(() => {
+        DeviceAction.getList();
+        client.subscribe("homie/#");
+    }, 0);
     return state.withMutations(map => {
         map.set("connected", true);
         map.set("connecting", false);

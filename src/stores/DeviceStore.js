@@ -7,34 +7,44 @@ function handleDeviceListReceived(state, { devices }) {
         return state;
     }
     return state.withMutations(map => {
-        for(const deviceName in devices) {
-            const device = devices[deviceName];
-            device.id = deviceName;
-            device.online = device.online === "true" ? true : false;
-            map.set(deviceName, device);
+        for(const deviceId in devices) {
+            const device = devices[deviceId];
+            device.id = deviceId;
+            map.set(deviceId, device);
         }
         return map;
-    })
+    });
 }
 
-function updateDeviceProp(state, deviceId, propName, propValue) {
-    return state.setIn([deviceId, propName], propValue);
+function handleDeviceDelete(state, { devices, device }) {
+    state = state.delete(device.id);
+    return handleDeviceListReceived(state, { devices });
 }
 
-function handleDeviceIPUpdate(state, { deviceId, localip }) {
-    return updateDeviceProp(state, deviceId, "localip", localip);
-}
+// function handleDeviceReceived(state, { device }) {
+//     return state;
+// }
 
-function handleDeviceOnlineUpdate(state, { deviceId, online }) {
-    return updateDeviceProp(state, deviceId, "online", online);
-}
+function handleDevicePropertyUpdate(state, { deviceId, property, value }) {
+    if (state.has(deviceId)) {
+        const oldDevice = state.get(deviceId);
+        switch (property) {
+            case "online":
+                value = value === "true" ? true : false
+                if (value === false) {
+                    oldDevice.uptime = 0;
+                    oldDevice.signal = 0;
+                }
+                break;
+            default:
+                break;
+        }
 
-function handleDeviceStatsUpdate(state, payload) {
-    const { deviceId } = payload;
-    if ("uptime" in payload) {
-        return updateDeviceProp(state, deviceId, "uptime", payload.uptime);
-    } else if ("signal" in payload) {
-        return updateDeviceProp(state, deviceId, "signal", payload.signal);
+        const device = {
+            ...oldDevice,
+            [property]: value
+        }
+        return state.set(deviceId, device);
     }
     return state;
 }
@@ -42,13 +52,21 @@ function handleDeviceStatsUpdate(state, payload) {
 class DeviceStore extends MapStore {
     initialize() {
         this.addAction(ActionTypes.LOAD_DEVICES_SUCCESS, handleDeviceListReceived);
-        this.addAction(ActionTypes.DEVICE_UPDATE_STATS, handleDeviceStatsUpdate);
-        this.addAction(ActionTypes.DEVICE_UPDATE_ONLINE, handleDeviceOnlineUpdate);
-        this.addAction(ActionTypes.DEVICE_UPDATE_IP, handleDeviceIPUpdate);
+        this.addAction(ActionTypes.DEVICE_DELETE_SUCCESS, handleDeviceDelete);
+        // this.addAction(ActionTypes.DEVICE_RECEIVED, handleDeviceReceived);
+
+        this.addAction(ActionTypes.DEVICE_PROPERTY_UPDATE, handleDevicePropertyUpdate);
+        // this.addAction(ActionTypes.DEVICE_UPDATE_STATS, handleDeviceStatsUpdate);
+        // this.addAction(ActionTypes.DEVICE_UPDATE_ONLINE, handleDeviceOnlineUpdate);
+        // this.addAction(ActionTypes.DEVICE_UPDATE_IP, handleDeviceIPUpdate);
     }
 
     getDevices() {
         return this.getState().toSet();
+    }
+
+    getDevice(deviceId) {
+        return this.getState().get(deviceId, false);
     }
 }
 

@@ -18,7 +18,13 @@ const StoreOverlay = {
   addAction(...args) {
     const actionTypes = args.slice(0, args.length - 1);
     const handlerFn = args[args.length - 1];
+
     actionTypes.forEach((actionType) => {
+      invariant(
+        actionType !== undefined,
+        "%s: actionTypes can not be undefined",
+        this.constructor.name
+      );
       this.__actionHandlers[actionType] = handlerFn;
     });
   },

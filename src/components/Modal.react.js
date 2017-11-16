@@ -9,21 +9,24 @@ export default class Modal extends React.Component {
         active: PropTypes.bool,
         children: PropTypes.node.isRequired,
         onClose: PropTypes.func,
-        onClosed: PropTypes.func
+        onClosed: PropTypes.func,
+        actions: PropTypes.arrayOf(PropTypes.node)
     }
 
     static defaultProps = {
         active: false,
         className: "",
         onClose: () => {},
-        onClosed: () => {}
+        onClosed: () => {},
+        actions: []
     }
 
     render() {
-        const { 
-            active, 
+        const {
+            active,
             title,
             children,
+            actions,
             className,
             onClose } = this.props;
         return (
@@ -31,16 +34,20 @@ export default class Modal extends React.Component {
                 "is-active": active
             })}>
                 <div className="modal-background"></div>
-                <div className="modal-card is-danger">
+                <div className="modal-card">
                     <header className="modal-card-head">
                         <p className="modal-card-title">{title}</p>
-                        <button 
+                        <button
                             onClick={(evt) => onClose(evt)}
-                            className="delete"></button>
+                            className="delete"
+                        ></button>
                     </header>
                     <section className="modal-card-body">
                         {children}
                     </section>
+                    {actions.length > 0 && <div className="modal-card-foot">
+                        {actions}
+                    </div>}
                 </div>
             </div>
         )

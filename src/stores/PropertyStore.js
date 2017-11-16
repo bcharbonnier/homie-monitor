@@ -23,11 +23,16 @@ function handleNodePropertyValueUpdate(state) {
     return state;
 }
 
+function handleDeviceDeletion(state, { device }) {
+    return state.delete(device.id);
+}
+
 class PropertyStore extends MapStore {
     initialize() {
         this.addAction(ActionTypes.DEVICE_NODE_PROPERTY_DEFINITION, handleNodePropertyDefinition);
         this.addAction(ActionTypes.DEVICE_NODE_TYPE_UPDATE, handleNodeTypeUpdate);
         this.addAction(ActionTypes.DEVICE_NODE_PROPERTY_VALUE_UPDATE, handleNodePropertyValueUpdate);
+        this.addAction(ActionTypes.DEVICE_DELETE_SUCCESS, handleDeviceDeletion);
     }
 
     getProperties(deviceId) {

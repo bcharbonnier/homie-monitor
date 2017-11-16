@@ -113,6 +113,10 @@ def on_message(mosq, userdata, message):
     """Called when a message has been received on a topic we have subscribed to"""
     logging.debug("MESSAGE %s: %s", str(message.topic), str(message.payload))
 
+    payload = str(message.payload)
+    if payload is "":
+        return
+
     try:
         topic = str(message.topic)[len(SENSOR_PREFIX) + 1:]
         device_id, key = topic.split("/")
@@ -120,8 +124,8 @@ def on_message(mosq, userdata, message):
             key = key[1:]                       # remove '$'
 
         device = devices[device_id] if device_id in devices else {}
+        devices[device_id] = device
 
-        payload = str(message.payload)
         if payload == "true" or payload == "false":
             payload = True if payload == "true" else False
 
@@ -135,6 +139,10 @@ def on_sensor(mosq, userdata, message):
     """Called for any property update on sensor attached to a device"""
     logging.debug("SENSOR %s: %s", str(message.topic), str(message.payload))
 
+    payload = str(message.payload)
+    if payload is "":
+        return
+
     try:
         topic = str(message.topic)[len(SENSOR_PREFIX) + 1:]
         device_id, key, subkey = topic.split("/")
@@ -142,27 +150,27 @@ def on_sensor(mosq, userdata, message):
 
         if key == "$fw":
             if subkey == "name":
-                device["fwname"] = str(message.payload)
+                device["fwname"] = payload
             if subkey == "version":
-                device["fwversion"] = str(message.payload)
+                device["fwversion"] = payload
             return
 
         # Version of the Homie convention the device conforms to
         if key == "$homie":
-            device["homie"] = str(message.payload)
+            device["homie"] = payload
 
         if key == "$stats":
             if subkey == "signal":
-                device["signal"] = int(message.payload)
+                device["signal"] = int(payload)
             if subkey == "uptime":
-                device["uptime"] = int(message.payload)
+                device["uptime"] = int(payload)
             return
 
         if device_id not in sensors:
             sensors[device_id] = {}
 
         subtopic = "{0}/{1}".format(key, subkey)
-        sensors[device_id][subtopic] = str(message.payload)
+        sensors[device_id][subtopic] = payload
 
     except Exception as e:
         logging.error("Cannot extract data: for %s: %s", str(message.topic), str(e))
@@ -183,16 +191,65 @@ def api_device_list():
     """Return the list of registered devices"""
     return devices
 
+@route("/api/devices/<deviceid>", method="DELETE")
+def api_device_delete(deviceid):
+    """Delete a given device from registered one"""
+    device = delete_device(deviceid)
+    return {"devices":devices, "device":device}
+
 @route("/api/sensors")
-def api_sensor_list():
+def api_sensors_list():
     """Return the list of sensors associated to registered devices"""
     return sensors
+
+@route("/api/devices/<deviceid>/sensors")
+def api_device_sensors_list(deviceid):
+    """Return the list of sensors associated to a specific device"""
+    return sensors[deviceid]
 
 @route("/api/firmwares")
 def api_firmware_list():
     """Return the list of firmwares available locally in the OTA server"""
     scan_firmwares(FIRMWARES_FOLDER, firmwares)
     return firmwares
+
+@route("/api/firmwares", method="POST")
+def api_upload_firmware():
+    """Upload a firmware file to the firmwares folder"""
+    pass
+
+def delete_device(device_id):
+    """Delete a device from MQTT retained messages"""
+    mapping_keys = {
+        "name": r"$name",
+        "online": r"$online",
+        "localip": r"$localip",
+        "mac": r"$mac",
+        "homie": r"$homie",
+        "fwname": r"$fw/name",
+        "fwversion": r"$fw/version",
+        "implementation": r"$implementation",
+        "signal": r"$stats/signal",
+        "uptime": r"$stats/uptime",
+    }
+    for key in devices[device_id]:
+        topic = "{0}/{1}/{2}".format(SENSOR_PREFIX, device_id, mapping_keys[key])
+        mqtt_client.publish(topic, None, 1, True)
+
+    for key in sensors[device_id]:
+        topic = "{0}/{1}/{2}".format(SENSOR_PREFIX, device_id, key)
+        mqtt_client.publish(topic, None, 1, True)
+
+    remaining_keys = (r"$stats/interval", r"$stats/interval", r"$fw/checksum", r"$implementation/ota/enabled")
+    for key in remaining_keys:
+        topic = "{0}/{1}/{2}".format(SENSOR_PREFIX, device_id, key)
+        mqtt_client.publish(topic, None, 1, True)
+
+    device = devices.pop(device_id, None)
+    sensors.pop(device_id)
+    devices.sync()
+    sensors.sync()
+    return device
 
 
 def main():

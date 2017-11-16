@@ -5,14 +5,18 @@ import { MapStore } from "../libs/Flux";
 import { ActionTypes } from "../Constants";
 import { uuid } from "../utils/Crypto";
 
-function handleMessageReceived(state, { topic, message }) {
-    const messages = state.get("messages") || immutable.OrderedSet();    
-    return state.set("messages", messages.add({
+function handleMessageReceived(state, { topic, message, error }) {
+    const messages = state.get("messages") || immutable.OrderedSet();
+    const log = {
         id: uuid(),
         message,
         topic,
         date: new Date()
-    }));
+    };
+    if (error) {
+        log.error = error
+    }
+    return state.set("messages", messages.add(log));
 }
 
 class MessageStore extends MapStore {

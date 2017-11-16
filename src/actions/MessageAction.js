@@ -1,10 +1,17 @@
 import { dispatch } from "../Dispatcher";
 import { ActionTypes } from "../Constants";
 
-export const receiveMessage = (topic, message) => {
-    dispatch({
+import DeviceStore from "../stores/DeviceStore";
+
+export const receiveMessage = (topic, message, deviceId) => {
+    const payload = {
         type: ActionTypes.MESSAGE_RECEIVED,
-        topic,
-        message: message.toString()
-    });
+        topic: topic.toString(),
+        message: message.toString(),
+    }
+
+    if (!DeviceStore.getDevice(deviceId)) {
+        payload.error = true;
+    }
+    dispatch(payload);
 }
