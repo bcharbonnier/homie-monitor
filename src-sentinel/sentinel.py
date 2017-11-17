@@ -11,7 +11,7 @@ import sys
 from uuid import getnode as get_mac
 
 import paho.mqtt.client as mqtt
-from bottle import route, run
+from bottle import route, run, static_file, abort, request
 
 from firmwares import scan_firmwares
 from localdb import LocalDB
@@ -65,12 +65,14 @@ logging.info("Starting %s, ID: %s", APPNAME, SENTINEL_ID)
 logging.debug("INIFILE = %s", INIFILE)
 
 # MQTT client
-mqtt_client = mqtt.Client("homie-%s-%s" % (APPNAME, SENTINEL_ID), clean_session=True, userdata=None, protocol=mqtt.MQTTv311)
+mqtt_client = mqtt.Client("homie-%s-%s" % (APPNAME, SENTINEL_ID),
+                          clean_session=True, userdata=None, protocol=mqtt.MQTTv311)
 
 # Persisted inventory store
 devices = LocalDB(os.path.join(".", DEVICEFILE))
 sensors = LocalDB(os.path.join(".", SENSORFILE))
 firmwares = LocalDB(os.path.join(".", FIRMWAREFILE))
+
 
 def exitus():
     """Managing proper exitint strategies"""
@@ -80,6 +82,7 @@ def exitus():
     devices.close()
     sensors.close()
     firmwares.close()
+
 
 atexit.register(exitus)
 signal.signal(signal.SIGTERM, lambda number, stack: exitus())
@@ -132,7 +135,8 @@ def on_message(mosq, userdata, message):
         device[key] = payload
 
     except Exception as e:
-        logging.error("Cannot extract data: for %s: %s", str(message.topic), str(e))
+        logging.error("Cannot extract data: for %s: %s",
+                      str(message.topic), str(e))
 
 
 def on_sensor(mosq, userdata, message):
@@ -173,7 +177,8 @@ def on_sensor(mosq, userdata, message):
         sensors[device_id][subtopic] = payload
 
     except Exception as e:
-        logging.error("Cannot extract data: for %s: %s", str(message.topic), str(e))
+        logging.error("Cannot extract data: for %s: %s",
+                      str(message.topic), str(e))
 
 
 def on_log(mosq, userdata, level, string):
@@ -186,26 +191,31 @@ def api_index():
     """API entry point"""
     return "200 OK"
 
+
 @route("/api/devices")
 def api_device_list():
     """Return the list of registered devices"""
     return devices
 
+
 @route("/api/devices/<deviceid>", method="DELETE")
 def api_device_delete(deviceid):
     """Delete a given device from registered one"""
     device = delete_device(deviceid)
-    return {"devices":devices, "device":device}
+    return {"devices": devices, "device": device}
+
 
 @route("/api/sensors")
 def api_sensors_list():
     """Return the list of sensors associated to registered devices"""
     return sensors
 
+
 @route("/api/devices/<deviceid>/sensors")
 def api_device_sensors_list(deviceid):
     """Return the list of sensors associated to a specific device"""
     return sensors[deviceid]
+
 
 @route("/api/firmwares")
 def api_firmware_list():
@@ -213,10 +223,46 @@ def api_firmware_list():
     scan_firmwares(FIRMWARES_FOLDER, firmwares)
     return firmwares
 
+
 @route("/api/firmwares", method="POST")
 def api_upload_firmware():
     """Upload a firmware file to the firmwares folder"""
-    pass
+    upload = request.files.get('firmware')
+    name, ext = os.path.splitext(upload.filename)
+    if ext not in ('.bin', '.zip'):
+        return {"ok": False, "error": 'File extension not allowed.'}
+
+    if upload.filename in firmwares:
+        return {"ok": False, "error": 'Firmware already exist.'}
+
+    upload.save(FIRMWARES_FOLDER)
+    scan_firmwares(FIRMWARES_FOLDER, firmwares)
+    firmwares.sync()
+    return {"ok": True, "firmwares": firmwares}
+
+
+@route("/api/firmwares/<firmware_name>", method="DELETE")
+def api_delete_firmware(firmware_name):
+    """Delete the corresponding firmware file"""
+    for name, firmware in firmwares.iteritems():
+        if firmware['firmware'] == firmware_name:
+            os.remove(os.path.join(FIRMWARES_FOLDER, firmware['filename']))
+            del firmwares[name]
+            firmwares.sync()
+            return {"ok": True, "firmwares": firmwares}
+
+    return abort(404, {"ok": False, "error": "Firmware Not Found"})
+
+
+@route("/api/firmwares/<firmware_filename>")
+def api_download_firmware(firmware_filename):
+    """Download the corresponding firmware file"""
+    if firmware_filename not in firmwares:
+        return abort(404, "Firmware Not Found")
+
+    firmware = firmwares[firmware_filename]
+    return static_file(firmware['filename'], root=FIRMWARES_FOLDER, download=firmware['filename'])
+
 
 def delete_device(device_id):
     """Delete a device from MQTT retained messages"""
@@ -233,14 +279,16 @@ def delete_device(device_id):
         "uptime": r"$stats/uptime",
     }
     for key in devices[device_id]:
-        topic = "{0}/{1}/{2}".format(SENSOR_PREFIX, device_id, mapping_keys[key])
+        topic = "{0}/{1}/{2}".format(SENSOR_PREFIX,
+                                     device_id, mapping_keys[key])
         mqtt_client.publish(topic, None, 1, True)
 
     for key in sensors[device_id]:
         topic = "{0}/{1}/{2}".format(SENSOR_PREFIX, device_id, key)
         mqtt_client.publish(topic, None, 1, True)
 
-    remaining_keys = (r"$stats/interval", r"$stats/interval", r"$fw/checksum", r"$implementation/ota/enabled")
+    remaining_keys = (r"$stats/interval", r"$stats/interval",
+                      r"$fw/checksum", r"$implementation/ota/enabled")
     for key in remaining_keys:
         topic = "{0}/{1}/{2}".format(SENSOR_PREFIX, device_id, key)
         mqtt_client.publish(topic, None, 1, True)
@@ -265,7 +313,8 @@ def main():
     if MQTT_USERNAME:
         mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
 
-    logging.debug("Attempting connection to MQTT broker at {0}:{1:d}...".format(MQTT_HOST, MQTT_PORT))
+    logging.debug("Attempting connection to MQTT broker at {0}:{1:d}...".format(
+        MQTT_HOST, MQTT_PORT))
 
     mqtt_client.connect_async(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE)
     mqtt_client.loop_start()

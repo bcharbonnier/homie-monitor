@@ -1,22 +1,22 @@
 version: '2'
 services:
-  # mosquitto:
-  #   image: toke/mosquitto
-  #   container_name: homie-mqtt
-  #   restart: always
-  #   # expose:
-  #   #   - 1883
-  #   ports:
-  #     - 1883:1883
-  #     - 9001:9001 #eventually useful for websocket connections
-  #   volumes:
-  #     - ./etc/mosquitto:/mqtt/data
+  mosquitto:
+    image: toke/mosquitto
+    container_name: homie-mqtt
+    restart: always
+    # expose:
+    #   - 1883
+    ports:
+      - 1883:1883
+      - 9001:9001 #eventually useful for websocket connections
+    volumes:
+      - ./etc/mosquitto:/mqtt/data
 
   sentinel:
     image: python:2.7
     container_name: homie-sentinel
-    # links:
-      # - mosquitto:mqtt
+    links:
+      - mosquitto:mqtt
     ports:
       - 8080:8080
     volumes:
@@ -36,7 +36,7 @@ services:
       - 35729:35729 #webpack-dev-server
     links:
       - sentinel:sentinel
-      # - mosquitto:mqtt
+      - mosquitto:mqtt
     volumes:
       - .:/usr/local/var/sentinel
       - /usr/local/var/sentinel/node_modules
