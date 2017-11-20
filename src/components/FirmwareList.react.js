@@ -43,7 +43,16 @@ export default class FirmwareList extends React.PureComponent {
           </td>
           <td>{firmware.human_size}</td>
           <td>
-            <ActionButton label="Details">
+            <ActionButton
+              label={
+                <span>
+                  <span className="icon is-small">
+                    <i className="fa fa-info-circle" />
+                  </span>
+                  <span>Details</span>
+                </span>
+              }
+            >
               <Link
                 to={`/firmwares/${firmware.name}/deploy`}
                 className="dropdown-item"

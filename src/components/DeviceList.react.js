@@ -21,7 +21,7 @@ class DeviceList extends React.PureComponent {
         <tr key={device.id}>
           <td className="device-online">
             <span
-              className={classnames("tag", {
+              className={classnames("tag", "is-rounded", {
                 "is-danger": device.online === false,
                 "is-success": device.online === true
               })}
@@ -92,7 +92,14 @@ class DeviceList extends React.PureComponent {
           </td>
           <td>
             <ActionButton
-              label="Info"
+              label={
+                <span>
+                  <span className="icon is-small">
+                    <i className="fa fa-info-circle" />
+                  </span>
+                  <span>Info</span>
+                </span>
+              }
               onClick={() => {
                 history.push(`/devices/${device.id}`);
               }}
