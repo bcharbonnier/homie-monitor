@@ -66,7 +66,7 @@ export default class FirmwareList extends React.PureComponent {
               <span className="dropdown-divider" />
               <a
                 onClick={() => this.deleteFirmware(firmware)}
-                className="dropdown-item"
+                className="dropdown-item has-text-danger"
               >
                 <span className="icon is-small">
                   <i className="fa fa-trash" />
