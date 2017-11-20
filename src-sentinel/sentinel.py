@@ -221,6 +221,7 @@ def api_device_sensors_list(deviceid):
 def api_firmware_list():
     """Return the list of firmwares available locally in the OTA server"""
     scan_firmwares(FIRMWARES_FOLDER, firmwares)
+    firmwares.sync()
     return firmwares
 
 
@@ -245,9 +246,9 @@ def api_upload_firmware():
 def api_delete_firmware(firmware_name):
     """Delete the corresponding firmware file"""
     for name, firmware in firmwares.iteritems():
-        if firmware['firmware'] == firmware_name:
+        if firmware['name'] == firmware_name:
             os.remove(os.path.join(FIRMWARES_FOLDER, firmware['filename']))
-            del firmwares[name]
+            firmwares[name].pop()
             firmwares.sync()
             return {"ok": True, "firmwares": firmwares}
 

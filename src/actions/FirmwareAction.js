@@ -29,7 +29,7 @@ export function deleteFirmware(firmware) {
     type: ActionTypes.DELETE_FIRMWARE,
     firmware
   });
-  return fetch(`/api/firmwares/${firmware.firmware}`, {
+  return fetch(`/api/firmwares/${firmware.name}`, {
     method: "DELETE",
     headers: {
       accepts: "application/json"

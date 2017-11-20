@@ -57,7 +57,7 @@ class FirmwareDeploy extends React.Component {
     if (!firmware) {
       return null;
     }
-    const { firmware: name, version, human_size, type } = firmware;
+    const { name, version, human_size, type } = firmware;
     return (
       <Modal
         className="firmware-deploy is-info"

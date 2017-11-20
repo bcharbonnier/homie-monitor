@@ -5,10 +5,12 @@ import classnames from "classnames";
 
 import * as FirwmareAction from "../actions/FirmwareAction";
 
+import Fetching from "./Fetching.react";
 import FirmwareDeploy from "./FirmwareDeploy.react";
 import FirmwareList from "./FirmwareList.react";
 
 import FirmwareStore from "../stores/FirmwareStore";
+import FirmwareStateStore from "../stores/FirmwareStateStore";
 
 const upload = className => (
   <div className={classnames("file", className)}>
@@ -32,17 +34,20 @@ const upload = className => (
 );
 
 const NoFirmware = () => (
-  <section className="section">{upload("is-centered is-boxed")}</section>
+  <div className="columns">
+    <div className="column">{upload("is-centered is-boxed")}</div>
+  </div>
 );
 
 class FirmwaresContainer extends React.Component {
   static getStores() {
-    return [FirmwareStore];
+    return [FirmwareStore, FirmwareStateStore];
   }
 
   static calculateState() {
     return {
-      firmwares: FirmwareStore.getFirmwares()
+      firmwares: FirmwareStore.getFirmwares(),
+      fetching: FirmwareStateStore.isFetchOnGoing()
     };
   }
 
@@ -51,7 +56,7 @@ class FirmwaresContainer extends React.Component {
   }
 
   render() {
-    const { firmwares } = this.state;
+    const { firmwares, fetching } = this.state;
     return (
       <div className="container">
         <div className="level">
@@ -80,7 +85,7 @@ class FirmwaresContainer extends React.Component {
           path="/firmwares/:firmwareName/deploy"
           component={FirmwareDeploy}
         />
-        <table className="table is-striped is-fullwidth">
+        <table className="table is-striped is-hoverable is-fullwidth">
           <thead>
             <tr>
               <th />
@@ -93,7 +98,8 @@ class FirmwaresContainer extends React.Component {
           </thead>
           {firmwares.size > 0 && <FirmwareList firmwares={firmwares} />}
         </table>
-        {firmwares.size === 0 && <NoFirmware />}
+        <Fetching active={fetching} />
+        {firmwares.size === 0 && !fetching && <NoFirmware />}
       </div>
     );
   }

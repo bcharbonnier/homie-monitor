@@ -1,69 +1,75 @@
-import mqtt from 'mqtt';
-import immutable from 'immutable';
+import mqtt from "mqtt";
+import immutable from "immutable";
 
-import Dispatcher, { dispatch } from '../Dispatcher';
-import { MapStore, withNoMutations } from '../libs/Flux';
+import Dispatcher, { dispatch } from "../Dispatcher";
+import { MapStore, withNoMutations } from "../libs/Flux";
 
-import { ActionTypes } from '../Constants';
+import { ActionTypes } from "../Constants";
 
-import * as MessageAction from '../actions/MessageAction';
-import * as DeviceAction from '../actions/DeviceAction';
+import * as MessageAction from "../actions/MessageAction";
+import * as DeviceAction from "../actions/DeviceAction";
 
 const CLIENT_ID = `homie-sentinel-ui-${Math.random()
   .toString(16)
   .substr(2, 8)}`;
 
-// const client = mqtt.connect("ws://192.168.0.17:9001", {
-//     clientId: CLIENT_ID
-// });
-const client = mqtt.connect('ws://localhost:9001', {
+const client = mqtt.connect("ws://192.168.0.17:9001", {
   clientId: CLIENT_ID
 });
+// const client = mqtt.connect('ws://localhost:9001', {
+//   clientId: CLIENT_ID
+// });
 
-client.on('connect', () => {
+client.on("connect", () => {
   dispatch({
     type: ActionTypes.CONNECTION_OPEN
   });
 });
 
-client.on('close', () => {
+client.on("close", () => {
   dispatch({
     type: ActionTypes.CONNECTION_LOST
   });
 });
 
-client.on('reconnect', () => {
+client.on("reconnect", () => {
   dispatch({
     type: ActionTypes.CONNECTION_RECONNECT
   });
 });
 
-client.on('message', (topic, message) => {
-  const [PREFIX, deviceId, ...rest] = topic.split('/'); // eslint-disable-line no-unused-vars
-  MessageAction.receiveMessage(topic, message, deviceId);
-  if (!deviceId.startsWith('$')) {
-    DeviceAction.receiveMessage(deviceId, rest.join('/'), message);
+client.on("message", (topic, message, packet) => {
+  const [PREFIX, deviceId, ...rest] = topic.split("/"); // eslint-disable-line no-unused-vars
+  MessageAction.receiveMessage(
+    topic,
+    message,
+    deviceId,
+    packet.payload.length === 0 // message deletion, empty message
+  );
+  if (!deviceId.startsWith("$")) {
+    console.info(deviceId, ...rest);
+    DeviceAction.receiveMessage(deviceId, rest.join("/"), message);
   }
 });
 
 function handleConnectionOpen(state) {
   setTimeout(() => {
     DeviceAction.getList();
-    client.subscribe('homie/#');
+    client.subscribe("homie/#");
   }, 0);
   return state.withMutations(map => {
-    map.set('connected', true);
-    map.set('connecting', false);
+    map.set("connected", true);
+    map.set("connecting", false);
     return map;
   });
 }
 
 function handleConnectionLost(state) {
-  return state.set('connected', false);
+  return state.set("connected", false);
 }
 
 function handleReconnect(state) {
-  return state.set('connecting', true);
+  return state.set("connecting", true);
 }
 
 function handleSendMessage({ topic, message, options }) {
@@ -90,11 +96,11 @@ class ConnectionStore extends MapStore {
   }
 
   isConnected() {
-    return this.getState().get('connected');
+    return this.getState().get("connected");
   }
 
   isConnecting() {
-    return this.getState().get('connecting');
+    return this.getState().get("connecting");
   }
 }
 

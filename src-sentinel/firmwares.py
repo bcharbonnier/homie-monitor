@@ -125,7 +125,8 @@ def scan_firmwares(path, db):
 
         fw_types[fw_file_ext](path, fw_file, firmware_info)
 
-        firmware_info["firmware"] = regex_result.group(1)
+        if "name" not in firmware_info:
+            firmware_info["name"] = regex_result.group(1)
         firmware_info["filename_version"] = regex_result.group(2)
 
         stat = os.stat(fw_path)

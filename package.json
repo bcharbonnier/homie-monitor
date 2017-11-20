@@ -25,6 +25,7 @@
     "react-router-dom": "^4.2.2"
   },
   "devDependencies": {
+    "ini-loader": "^1.0.1",
     "react-scripts": "^1.0.17"
   },
   "proxy": {

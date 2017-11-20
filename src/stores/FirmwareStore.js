@@ -36,7 +36,7 @@ class FirmwareStore extends MapStore {
 
   getFirmware(firmwareName) {
     return this.getState()
-      .filter(f => f.firmware === firmwareName)
+      .filter(f => f.name === firmwareName)
       .first();
   }
 }

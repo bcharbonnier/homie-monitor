@@ -16,7 +16,7 @@ export default class FirmwareList extends React.PureComponent {
 
     const firmwareList = firmwares.map(firmware => {
       return (
-        <tr key={firmware.firmware}>
+        <tr key={firmware.name}>
           <td>
             <span className="icon is-small">
               <i
@@ -29,7 +29,7 @@ export default class FirmwareList extends React.PureComponent {
             </span>
           </td>
           <td>
-            <div>{firmware.firmware}</div>
+            <div>{firmware.name}</div>
             <div className="content is-small">
               <em title="checksum">{firmware.checksum}</em>
             </div>
@@ -45,7 +45,7 @@ export default class FirmwareList extends React.PureComponent {
           <td>
             <ActionButton label="Details">
               <Link
-                to={`/firmwares/${firmware.firmware}/deploy`}
+                to={`/firmwares/${firmware.name}/deploy`}
                 className="dropdown-item"
               >
                 <span className="icon is-small">
