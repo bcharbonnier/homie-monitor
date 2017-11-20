@@ -82,3 +82,14 @@ td:last-child > div.field.has-addons {
 .modal .modal-card-foot {
   justify-content: flex-end;
 }
+
+.notifications {
+  position: absolute;
+  z-index: 5;
+  bottom: 2.5em;
+  left: 2.5em;
+}
+
+.notifications .notification:not(:last-child) {
+  margin-bottom: 0.5em;
+}

@@ -1,8 +1,5 @@
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Route
-} from "react-router-dom";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 
 import Navbar from "./Navbar.react";
 import Footer from "./Footer.react";
@@ -12,6 +9,7 @@ import Devices from "./Devices.react";
 import DeviceDetails from "./DeviceDetails.react";
 import Firmwares from "./Firmwares.react";
 import ConsoleLog from "./ConsoleLog.react";
+import Notifications from "./Notifications.react";
 import PropertiesExplorer from "./PropertiesExplorer.react";
 import ActionsExplorer from "./ActionsExplorer.react";
 
@@ -23,6 +21,7 @@ export default class App extends React.PureComponent {
           <div className="container main-nav">
             <Navbar />
           </div>
+          <Notifications />
           <section className="section main-section">
             <Route exact path="/" component={Dashboard} />
             <Route path="/devices" component={Devices} />

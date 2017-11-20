@@ -1,6 +1,8 @@
 import { dispatch } from "../Dispatcher";
 import { ActionTypes } from "../Constants";
 
+import * as NotificationAction from "./NotificationAction";
+
 export function getList() {
   dispatch({
     type: ActionTypes.LOAD_FIRMWARES
@@ -38,17 +40,17 @@ export function deleteFirmware(firmware) {
     .then(response => response.json())
     .then(({ ok, firmwares, error }) => {
       if (!ok) {
-        dispatch({
-          type: ActionTypes.DELETE_FIRMWARE_FAILURE,
-          firmware,
-          error
-        });
+        NotificationAction.error(error);
+        return;
       }
       dispatch({
         type: ActionTypes.DELETE_FIRMWARE_SUCCESS,
         firmware,
         firmwares
       });
+      NotificationAction.success(
+        `Firmware '${firmware.name}@${firmware.version}' has been deleted`
+      );
     })
     .catch(ex => {
       console.error(ex);
@@ -69,17 +71,17 @@ export function upload(file) {
     body: data
   })
     .then(response => response.json())
-    .then(({ ok, firmwares, error }) => {
+    .then(({ ok, firmwares, firmware, error }) => {
       if (!ok) {
-        dispatch({
-          type: ActionTypes.UPLOAD_FIRMWARE_FAILURE,
-          error
-        });
+        NotificationAction.error(error);
         return;
       }
       dispatch({
         type: ActionTypes.UPLOAD_FIRMWARE_SUCCESS,
         firmwares
       });
+      NotificationAction.success(
+        `New firmware '${firmware.name}@${firmware.version}' uploaded!`
+      );
     });
 }

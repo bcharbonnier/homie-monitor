@@ -258,7 +258,7 @@ def api_upload_firmware():
         firmware_info["filename"] = filename
         firmwares[filename] = firmware_info
         firmwares.sync()
-        return {"ok": True, "firmwares": firmwares}
+        return {"ok": True, "firmwares": firmwares, "firmware": firmware_info}
 
     else:
         os.remove(os.path.join(FIRMWARES_FOLDER, temp_filename))

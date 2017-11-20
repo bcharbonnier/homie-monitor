@@ -29,5 +29,16 @@ export const ActionTypes = keyMirror({
   DEVICE_NODE_PROPERTY_VALUE_UPDATE: null,
 
   DEVICE_DELETE_FAILURE: null,
-  DEVICE_DELETE_SUCCESS: null
+  DEVICE_DELETE_SUCCESS: null,
+
+  NOTIFICATION_ADD: null,
+  NOTIFICATION_REMOVE: null
 });
+
+export const NOTIFICATION = {
+  ERROR: 1 << 0,
+  WARNING: 1 << 1,
+  SUCCESS: 1 << 2
+};
+
+export const NOTIFICATION_DEFAULT_TIME = 3 * 1000;

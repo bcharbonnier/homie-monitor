@@ -58,7 +58,7 @@ class FirmwaresContainer extends React.Component {
   }
 
   render() {
-    const { firmwares, fetching, hasError, errorMessage } = this.state;
+    const { firmwares, fetching } = this.state;
     return (
       <div className="container">
         <div className="level">
@@ -66,13 +66,6 @@ class FirmwaresContainer extends React.Component {
             <div className="level-item">
               <h1 className="title">Firmwares</h1>
             </div>
-            {hasError && (
-              <div className="level-item">
-                <div className="message is-danger is-small">
-                  <div className="message-body">{errorMessage}</div>
-                </div>
-              </div>
-            )}
           </div>
           <div className="level-right">
             <div className="level-item">
