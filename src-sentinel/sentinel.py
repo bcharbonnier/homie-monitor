@@ -8,12 +8,13 @@ import logging
 import os
 import signal
 import sys
+import time
 from uuid import getnode as get_mac
 
 import paho.mqtt.client as mqtt
 from bottle import route, run, static_file, abort, request
 
-from firmwares import scan_firmwares
+from firmwares import scan_firmwares, scan_firmware, compute_firmware_size
 from localdb import LocalDB
 
 # Names
@@ -229,26 +230,48 @@ def api_firmware_list():
 def api_upload_firmware():
     """Upload a firmware file to the firmwares folder"""
     upload = request.files.get('firmware')
+    if not upload:
+        return abort(500, {"ok": False, "error": "Upload error: mising firmware file from request"})
+
     name, ext = os.path.splitext(upload.filename)
     if ext not in ('.bin', '.zip'):
-        return {"ok": False, "error": 'File extension not allowed.'}
+        return {"ok": False, "error": "Upload error: file extension '%s' not allowed." % ext}
 
-    if upload.filename in firmwares:
-        return {"ok": False, "error": 'Firmware already exist.'}
-
+    temp_filename = "%s-%s%s" % (name, time.time(), ext)
+    upload.filename = temp_filename
     upload.save(FIRMWARES_FOLDER)
-    scan_firmwares(FIRMWARES_FOLDER, firmwares)
-    firmwares.sync()
-    return {"ok": True, "firmwares": firmwares}
+
+    firmware_info = {}
+    scan_firmware(firmware_info, FIRMWARES_FOLDER, upload.filename, name, ext)
+
+    if firmware_info.has_key("version") and firmware_info.has_key("name"):
+        filename = upload.filename = "%s-%s%s" % (
+            firmware_info["name"], firmware_info["version"], ext)
+
+        if filename in firmwares:
+            os.remove(os.path.join(FIRMWARES_FOLDER, temp_filename))
+            return {"ok": False, "error": 'Upload error: firmware already exist.'}
+
+        os.rename(os.path.join(FIRMWARES_FOLDER, temp_filename),
+                  os.path.join(FIRMWARES_FOLDER, filename))
+
+        firmware_info["filename"] = filename
+        firmwares[filename] = firmware_info
+        firmwares.sync()
+        return {"ok": True, "firmwares": firmwares}
+
+    else:
+        os.remove(os.path.join(FIRMWARES_FOLDER, temp_filename))
+        return {"ok": False, "error": 'Upload error: missing version or name from firmware'}
 
 
 @route("/api/firmwares/<firmware_name>", method="DELETE")
 def api_delete_firmware(firmware_name):
     """Delete the corresponding firmware file"""
     for name, firmware in firmwares.iteritems():
-        if firmware['name'] == firmware_name:
+        if name == firmware_name:
             os.remove(os.path.join(FIRMWARES_FOLDER, firmware['filename']))
-            firmwares[name].pop()
+            del firmwares[name]
             firmwares.sync()
             return {"ok": True, "firmwares": firmwares}
 

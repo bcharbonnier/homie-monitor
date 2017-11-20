@@ -29,24 +29,29 @@ export function deleteFirmware(firmware) {
     type: ActionTypes.DELETE_FIRMWARE,
     firmware
   });
-  return fetch(`/api/firmwares/${firmware.name}`, {
+  return fetch(`/api/firmwares/${firmware.filename}`, {
     method: "DELETE",
     headers: {
       accepts: "application/json"
     }
   })
-    .then(response => {
-      if (response.status !== 200) {
-        return {};
+    .then(response => response.json())
+    .then(({ ok, firmwares, error }) => {
+      if (!ok) {
+        dispatch({
+          type: ActionTypes.DELETE_FIRMWARE_FAILURE,
+          firmware,
+          error
+        });
       }
-      return response.json();
-    })
-    .then(firmwares => {
       dispatch({
         type: ActionTypes.DELETE_FIRMWARE_SUCCESS,
         firmware,
         firmwares
       });
+    })
+    .catch(ex => {
+      console.error(ex);
     });
 }
 
@@ -63,12 +68,7 @@ export function upload(file) {
     method: "POST",
     body: data
   })
-    .then(response => {
-      if (response.status !== 200) {
-        return {};
-      }
-      return response.json();
-    })
+    .then(response => response.json())
     .then(({ ok, firmwares, error }) => {
       if (!ok) {
         dispatch({

@@ -13,6 +13,7 @@ export const ActionTypes = keyMirror({
 
   DELETE_FIRMWARE: null,
   DELETE_FIRMWARE_SUCCESS: null,
+  DELETE_FIRMWARE_FAILURE: null,
 
   UPLOAD_FIRMWARE: null,
   UPLOAD_FIRMWARE_SUCCESS: null,

@@ -47,7 +47,9 @@ class FirmwaresContainer extends React.Component {
   static calculateState() {
     return {
       firmwares: FirmwareStore.getFirmwares(),
-      fetching: FirmwareStateStore.isFetchOnGoing()
+      fetching: FirmwareStateStore.isFetchOnGoing(),
+      hasError: FirmwareStateStore.hasError(),
+      errorMessage: FirmwareStateStore.getError()
     };
   }
 
@@ -56,12 +58,21 @@ class FirmwaresContainer extends React.Component {
   }
 
   render() {
-    const { firmwares, fetching } = this.state;
+    const { firmwares, fetching, hasError, errorMessage } = this.state;
     return (
       <div className="container">
         <div className="level">
           <div className="level-left">
-            <h1 className="title">Firmwares</h1>
+            <div className="level-item">
+              <h1 className="title">Firmwares</h1>
+            </div>
+            {hasError && (
+              <div className="level-item">
+                <div className="message is-danger is-small">
+                  <div className="message-body">{errorMessage}</div>
+                </div>
+              </div>
+            )}
           </div>
           <div className="level-right">
             <div className="level-item">
