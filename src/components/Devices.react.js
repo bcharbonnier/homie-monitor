@@ -62,7 +62,7 @@ class DevicesContainer extends React.Component {
               <th>Signal</th>
               <th>IP</th>
               <th>Firmware</th>
-              <th>Version</th>
+              <th className="has-text-centered">Version</th>
               <th>Uptime</th>
               <th>Actions</th>
             </tr>

@@ -26,7 +26,7 @@ class PropertiesExplorerContainer extends React.Component {
         <table className="table is-striped is-fullwidth">
           <thead>
             <tr>
-              <th>Device</th>
+              <th>Node/Device</th>
               <th>Property</th>
               <th>Value</th>
               <th>Type</th>

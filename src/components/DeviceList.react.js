@@ -4,13 +4,8 @@ import { withRouter } from "react-router";
 import { Link } from "react-router-dom";
 
 import ActionButton from "./ActionButton.react";
+import NotAvailableWrapper from "./NotAvailableWrapper.react";
 import Uptime from "./Uptime.react";
-
-const NotAvailableWrapper = props => (
-  <div className={classnames(props.className)}>
-    {props.condition ? props.children : <div className="tag">n/a</div>}
-  </div>
-);
 
 class DeviceList extends React.PureComponent {
   render() {
@@ -39,22 +34,20 @@ class DeviceList extends React.PureComponent {
             >
               <progress
                 title={`${device.signal}%`}
-                className="progress is-small is-dark"
+                className={classnames("progress is-small", {
+                  "is-dark": device.signal < 50,
+                  "is-primary": device.signal >= 50 && device.signal < 70,
+                  "is-success": device.signal >= 70
+                })}
                 value={device.signal}
                 max="100"
               />
             </NotAvailableWrapper>
           </td>
           <td>
-            <NotAvailableWrapper
-              className={{
-                content: true,
-                "is-small": device.online
-              }}
-              condition={device.online}
-            >
+            <NotAvailableWrapper condition={device.online}>
               <div>{device.localip}</div>
-              <div>{device.mac}</div>
+              <div className="content is-small">{device.mac}</div>
             </NotAvailableWrapper>
           </td>
           <td>
@@ -84,7 +77,7 @@ class DeviceList extends React.PureComponent {
               </div>
             </div>
           </td>
-          <td>{device.fwversion}</td>
+          <td className="has-text-centered">{device.fwversion}</td>
           <td>
             <NotAvailableWrapper condition={device.online}>
               <Uptime time={device.uptime} />

@@ -34,7 +34,7 @@ export default class FirmwareList extends React.PureComponent {
               <em title="checksum">{firmware.checksum}</em>
             </div>
           </td>
-          <td>{firmware.version}</td>
+          <td className="has-text-centered">{firmware.version}</td>
           <td>
             <div>{firmware.type}</div>
             <div className="content is-small">

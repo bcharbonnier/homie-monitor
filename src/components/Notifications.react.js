@@ -7,6 +7,8 @@ import * as NotificationAction from "../actions/NotificationAction";
 import NotificationStore from "../stores/NotificationStore";
 import { NOTIFICATION } from "../Constants";
 
+import { uuid } from "../utils/Crypto";
+
 function Notification(props) {
   const { type, children } = props;
   return (
@@ -48,12 +50,13 @@ class Notifications extends React.Component {
 
   render() {
     const notifications = this.state.notifications
-      .map((n, index) => {
+      .map(n => {
+        const key = uuid();
         switch (n.type) {
           case NOTIFICATION.ERROR:
             return (
               <DangerNotification
-                key={`${index}-${Date.now()}`}
+                key={key}
                 onClose={() => {
                   NotificationAction.close(n);
                 }}
@@ -64,16 +67,12 @@ class Notifications extends React.Component {
 
           case NOTIFICATION.WARNING:
             return (
-              <WarningNotification key={`${index}-${Date.now()}`}>
-                {n.message}
-              </WarningNotification>
+              <WarningNotification key={key}>{n.message}</WarningNotification>
             );
 
           case NOTIFICATION.SUCCESS:
             return (
-              <SuccessNotification key={`${index}-${Date.now()}`}>
-                {n.message}
-              </SuccessNotification>
+              <SuccessNotification key={key}>{n.message}</SuccessNotification>
             );
 
           default:

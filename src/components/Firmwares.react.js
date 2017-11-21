@@ -94,7 +94,7 @@ class FirmwaresContainer extends React.Component {
             <tr>
               <th />
               <th>Name</th>
-              <th>Version</th>
+              <th className="has-text-centered">Version</th>
               <th>Implementation</th>
               <th>Size</th>
               <th>Actions</th>

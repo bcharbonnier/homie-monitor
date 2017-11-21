@@ -73,7 +73,10 @@ class FirmwareDeploy extends React.Component {
             className="button is-info"
             onClick={() => this.onDeploy()}
           >
-            Deploy
+            <span className="icon is-small">
+              <i className="fa fa-cloud-upload" />
+            </span>
+            <span>Deploy</span>
           </button>
         ]}
       >

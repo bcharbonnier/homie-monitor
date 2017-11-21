@@ -1,5 +1,7 @@
 import React from "react";
 
+import NotAvailableWrapper from "./NotAvailableWrapper.react";
+
 export default class PropertyList extends React.Component {
   render() {
     const { properties } = this.props;
@@ -9,15 +11,16 @@ export default class PropertyList extends React.Component {
           return (
             <tr key={`${name}-${nodeName}-${prop.name}`}>
               <td>
-                {name}
-                <span>/</span>
-                {nodeName}
+                <div>{nodeName}</div>
+                <div className="content is-small">{name}</div>
               </td>
               <td>{prop.name}</td>
               <td />
               <td />
               <td />
-              <td />
+              <td>
+                <NotAvailableWrapper condition={prop.settable} />
+              </td>
             </tr>
           );
         });
