@@ -10,6 +10,7 @@ import signal
 import sys
 import time
 from uuid import getnode as get_mac
+import json
 
 import paho.mqtt.client as mqtt
 from bottle import route, run, static_file, abort, request
@@ -19,40 +20,39 @@ from localdb import LocalDB
 
 # Names
 APPNAME = os.path.splitext(os.path.basename(__file__))[0]
-INIFILE = os.getenv('INIFILE', "config.ini")
+CONFIGFILE = os.path.join("src", "config.json")
 DEVICEFILE = os.getenv('DEVICEFILE', "devices.json")
 NODEFILE = os.getenv("NODEFILE", "nodes.json")
 FIRMWAREFILE = os.getenv("FIRMWAREFILE", "firmwares.json")
 SENTINEL_ID = "{:02x}".format(get_mac())
 
 # Read the config file
-CONFIG = ConfigParser.RawConfigParser()
-CONFIG.read(INIFILE)
+CONFIG = json.load(open(CONFIGFILE, 'r'))
 
 # Use ConfigParser to pick out the settings
-DEBUG = CONFIG.getboolean("global", "DEBUG")
+DEBUG = CONFIG.get("global").get("debug")
 
 
 def default_config(section, option, default):
     """Provide confing value with default"""
-    if not CONFIG.has_section(section):
+    if not CONFIG.has_key(section):
         return default
-    elif not CONFIG.has_option(section, option):
+    elif not CONFIG.get(section).has_key(option):
         return default
-    return CONFIG.get(section, option)
+    return CONFIG.get(section).get(option)
 
 
-HOST = default_config("global", "HOST", "0.0.0.0")
-PORT = default_config("global", "PORT", "8080")
+HOST = default_config("global", "host", "0.0.0.0")
+PORT = default_config("global", "port", "8080")
 
-MQTT_HOST = default_config("mqtt", "MQTT_HOST", "localhost")
-MQTT_PORT = int(default_config("mqtt", "MQTT_PORT", 1883))
-MQTT_KEEPALIVE = int(default_config("mqtt", "MQTT_KEEPALIVE", 60))
-MQTT_USERNAME = default_config("mqtt", "MQTT_USERNAME", None)
-MQTT_PASSWORD = default_config("mqtt", "MQTT_PASSWORD", None)
+MQTT_HOST = default_config("mqtt", "mqtt_host", "localhost")
+MQTT_PORT = int(default_config("mqtt", "mqtt_port", 1883))
+MQTT_KEEPALIVE = int(default_config("mqtt", "mqtt_keepalive", 60))
+MQTT_USERNAME = default_config("mqtt", "mqtt_username", None)
+MQTT_PASSWORD = default_config("mqtt", "mqtt_password", None)
 
-SENSOR_PREFIX = default_config("homie", "SENSOR_PREFIX", "homie")
-FIRMWARES_FOLDER = default_config("homie", "FIRMWARE_FOLDER", "firmwares")
+SENSOR_PREFIX = default_config("homie", "device_prefix", "homie")
+FIRMWARES_FOLDER = default_config("homie", "firmware_folder", "firmwares")
 
 # Initialise logging
 LOGFORMAT = '%(asctime)-15s %(levelname)-5s %(message)s'
@@ -63,7 +63,7 @@ else:
     logging.basicConfig(level=logging.INFO, format=LOGFORMAT)
 
 logging.info("Starting %s, ID: %s", APPNAME, SENTINEL_ID)
-logging.debug("INIFILE = %s", INIFILE)
+logging.debug("CONFIGFILE = %s", CONFIGFILE)
 
 # MQTT client
 mqtt_client = mqtt.Client("homie-%s-%s" % (APPNAME, SENTINEL_ID),

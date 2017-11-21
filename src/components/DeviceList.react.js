@@ -59,19 +59,11 @@ class DeviceList extends React.PureComponent {
                     <i
                       className={classnames("fa", {
                         "fa-microchip": device.implementation === "esp8266",
-                        "fa-desktop": device.implementation === "python"
+                        "fa-desktop": device.implementation !== "esp8266"
                       })}
                       aria-hidden="true"
                     />
                   </span>
-                  {device.implementation !== "esp8266" && (
-                    <span className="level-item icon is-small">
-                      <i
-                        className={classnames("fa", "fa-apple")}
-                        aria-hidden="true"
-                      />
-                    </span>
-                  )}
                   <span className="level-item">{device.implementation}</span>
                 </div>
               </div>

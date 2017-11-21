@@ -1,0 +1,20 @@
+{
+  "global": {
+    "debug": false,
+    "host": "0.0.0.0",
+    "port": 8080
+  },
+
+  "mqtt": {
+    "mqtt_host": "127.0.0.1",
+    "mqtt_port": "1883",
+    "mqtt_websocket_host": "localhost",
+    "mqtt_websocket_port": 9001,
+    "mqtt_username": "<username>",
+    "mqtt_password": "<password>"
+  },
+
+  "homie": {
+    "device_prefix": "homie"
+  }
+}

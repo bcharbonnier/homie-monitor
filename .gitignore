@@ -10,7 +10,7 @@ coverage
 
 /etc/mosquitto/mosquitto.db
 /firmwares/*
-config.ini
+/src/config.json
 devices.json
 devices.json.*
 nodes.json
