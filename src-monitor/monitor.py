@@ -1,5 +1,5 @@
 """
-Homie Sentinel server
+Homie Monitor server
 Provides a Web UI to administrate all your Homie devices.
 """
 import atexit
@@ -21,7 +21,7 @@ from localdb import LocalDB
 APPNAME = os.path.splitext(os.path.basename(__file__))[0]
 INIFILE = os.getenv('INIFILE', "config.ini")
 DEVICEFILE = os.getenv('DEVICEFILE', "devices.json")
-SENSORFILE = os.getenv("SENSORFILE", "nodes.json")
+NODEFILE = os.getenv("NODEFILE", "nodes.json")
 FIRMWAREFILE = os.getenv("FIRMWAREFILE", "firmwares.json")
 SENTINEL_ID = "{:02x}".format(get_mac())
 
@@ -71,7 +71,7 @@ mqtt_client = mqtt.Client("homie-%s-%s" % (APPNAME, SENTINEL_ID),
 
 # Persisted inventory store
 devices = LocalDB(os.path.join(".", DEVICEFILE))
-sensors = LocalDB(os.path.join(".", SENSORFILE))
+nodes = LocalDB(os.path.join(".", NODEFILE))
 firmwares = LocalDB(os.path.join(".", FIRMWAREFILE))
 
 
@@ -81,7 +81,7 @@ def exitus():
     mqtt_client.loop_stop()
     mqtt_client.disconnect()
     devices.close()
-    sensors.close()
+    nodes.close()
     firmwares.close()
 
 
@@ -171,11 +171,11 @@ def on_sensor(mosq, userdata, message):
                 device["uptime"] = int(payload)
             return
 
-        if device_id not in sensors:
-            sensors[device_id] = {}
+        if device_id not in nodes:
+            nodes[device_id] = {}
 
         subtopic = "{0}/{1}".format(key, subkey)
-        sensors[device_id][subtopic] = payload
+        nodes[device_id][subtopic] = payload
 
     except Exception as e:
         logging.error("Cannot extract data: for %s: %s",
@@ -206,16 +206,16 @@ def api_device_delete(deviceid):
     return {"devices": devices, "device": device}
 
 
-@route("/api/sensors")
-def api_sensors_list():
-    """Return the list of sensors associated to registered devices"""
-    return sensors
+@route("/api/nodes")
+def api_nodes_list():
+    """Return the list of nodes associated to registered devices"""
+    return nodes
 
 
-@route("/api/devices/<deviceid>/sensors")
-def api_device_sensors_list(deviceid):
-    """Return the list of sensors associated to a specific device"""
-    return sensors[deviceid]
+@route("/api/devices/<deviceid>/nodes")
+def api_device_nodes_list(deviceid):
+    """Return the list of nodes associated to a specific device"""
+    return nodes[deviceid]
 
 
 @route("/api/firmwares")
@@ -307,7 +307,7 @@ def delete_device(device_id):
                                      device_id, mapping_keys[key])
         mqtt_client.publish(topic, None, 1, True)
 
-    for key in sensors[device_id]:
+    for key in nodes[device_id]:
         topic = "{0}/{1}/{2}".format(SENSOR_PREFIX, device_id, key)
         mqtt_client.publish(topic, None, 1, True)
 
@@ -318,9 +318,9 @@ def delete_device(device_id):
         mqtt_client.publish(topic, None, 1, True)
 
     device = devices.pop(device_id, None)
-    sensors.pop(device_id)
+    nodes.pop(device_id)
     devices.sync()
-    sensors.sync()
+    nodes.sync()
     return device
 
 

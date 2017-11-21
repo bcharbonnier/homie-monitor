@@ -11,8 +11,11 @@ coverage
 /etc/mosquitto/mosquitto.db
 /firmwares/*
 config.ini
-devices.*
-nodes.*
-firmwares.*
+devices.json
+devices.json.*
+nodes.json
+nodes.json.*
+firmwares.json
+firmwares.json.*
 
 *.pyc

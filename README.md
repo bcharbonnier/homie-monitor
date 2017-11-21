@@ -1,5 +1,5 @@
-# Homie Sentinel
+# Homie Monitor
 
-![Homie](homie-sentinel.png)
+![Homie](homie-monitor.png)
 
 WIP - Do not use yet

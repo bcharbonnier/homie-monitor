@@ -35,7 +35,7 @@ export default class Navbar extends React.Component {
       <nav className="navbar">
         <div className="navbar-brand">
           <Link className="navbar-item" to="/">
-            <strong>Homie</strong>Sentinel
+            <strong>Homie</strong>Monitor
           </Link>
           <div
             className={classnames("navbar-burger burger", {

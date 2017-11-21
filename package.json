@@ -1,7 +1,7 @@
 {
-  "name": "homie-sentinel",
+  "name": "homie-monitor",
   "version": "1.0.0",
-  "description": "Homie Sentinel UI Server",
+  "description": "Homie Monitor UI Server",
   "private": true,
   "scripts": {
     "start": "react-scripts start",
@@ -31,7 +31,7 @@
   },
   "proxy": {
     "api/*": {
-      "target": "http://sentinel:8080"
+      "target": "http://monitor:8080"
     }
   }
 }

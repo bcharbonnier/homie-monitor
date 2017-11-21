@@ -12,35 +12,35 @@ services:
     volumes:
       - ./etc/mosquitto:/mqtt/data
 
-  sentinel:
+  monitor:
     image: python:2.7
-    container_name: homie-sentinel
+    container_name: homie-monitor
     links:
       - mosquitto:mqtt
     ports:
       - 8080:8080
     volumes:
-      - .:/usr/local/var/sentinel
-    working_dir: /usr/local/var/sentinel
-    entrypoint: sh scripts/start-sentinel.sh
-    command: python src-sentinel/sentinel.py
+      - .:/usr/local/var/monitor
+    working_dir: /usr/local/var/monitor
+    entrypoint: sh scripts/start-monitor.sh
+    command: python src-monitor/monitor.py
     restart: always
 
-  sentinel-ui:
+  monitor-ui:
     image: node
-    container_name: homie-sentinel-ui
+    container_name: homie-monitor-ui
     environment:
       - NODE_ENV=development
     ports:
       - 3000:3000
       - 35729:35729 #webpack-dev-server
     links:
-      - sentinel:sentinel
+      - monitor:monitor
       - mosquitto:mqtt
     volumes:
-      - .:/usr/local/var/sentinel
-      - /usr/local/var/sentinel/node_modules
-    working_dir: /usr/local/var/sentinel
-    entrypoint: sh scripts/start-sentinel-ui.sh
+      - .:/usr/local/var/monitor
+      - /usr/local/var/monitor/node_modules
+    working_dir: /usr/local/var/monitor
+    entrypoint: sh scripts/start-monitor-ui.sh
     command: npm run start
     restart: always
