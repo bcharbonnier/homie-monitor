@@ -135,3 +135,11 @@ function receiveNodePropertyValue(deviceId, nodeId, value) {
     type: ActionTypes.DEVICE_NODE_PROPERTY_VALUE_UPDATE
   });
 }
+
+export function resetDevice(deviceId) {
+  dispatch({
+    type: ActionTypes.SEND_MESSAGE,
+    topic: `homie/${deviceId}/\$implementation/reset`,
+    message: "true"
+  });
+}

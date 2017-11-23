@@ -72,7 +72,7 @@ class DeviceList extends React.PureComponent {
           <td className="has-text-centered">{device.fwversion}</td>
           <td>
             <NotAvailableWrapper condition={device.online}>
-              <Uptime time={device.uptime} />
+              <Uptime time={device.uptime} short />
             </NotAvailableWrapper>
           </td>
           <td>
